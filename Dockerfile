@@ -1,14 +1,19 @@
-# Use the official CentOS 7 base image
-FROM centos:centos7
+# Use the official Ubuntu base image
+FROM ubuntu:22.04
 
-# Install the Apache HTTP server package from the CentOS repository
-RUN yum install httpd -y
+# Prevent interactive prompts during package installation
+ENV DEBIAN_FRONTEND=noninteractive
 
-# Copy the index.html file from the Docker build context to the default Apache document root directory in the container
+# Update package list and install Apache HTTP server
+RUN apt-get update && \
+    apt-get install -y apache2 && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Copy the index.html file to Apache's default web root
 COPY index.html /var/www/html/
 
-# Specify the command to run when the container starts, which starts the Apache HTTP server in the foreground
-CMD ["/usr/sbin/httpd","-D","FOREGROUND"]
+# Start Apache in the foreground when the container starts
+CMD ["apachectl", "-D", "FOREGROUND"]
 
-# Expose port 80 to allow incoming HTTP traffic to the container
-EXPOSE 80
+# Ex
